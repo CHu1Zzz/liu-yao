@@ -31,6 +31,36 @@ export function randomCast() {
   return coinToss(results)
 }
 
+// 将6爻结果转换为上下卦象
+// 爻值：7=少阳（阳），8=少阴（阴），9=老阴（阴动），6=老阳（阳动）
+export function yaoValuesToHexagram(yaoValues) {
+  // 上卦：爻1-3（从下到上），用4爻决定
+  // 1爻=初（最低），2爻=二，3爻=三，4爻=四
+  // 按先天八卦序：乾1 兑2 离3 震4 巽5 坎6 艮7 坤8
+  const baguaOrder = ['乾', '兑', '离', '震', '巽', '坎', '艮', '坤']
+
+  // 上卦用3爻（初爻、二爻、三爻）
+  // 从下往上：yaoValues[0]=初爻，yaoValues[1]=二爻，yaoValues[2]=三爻
+  // 阳爻=1（奇数），阴爻=0（偶数）
+  // 坎=1+2*2=5，等等。简化：用二进制位计算
+  const upperBits = (yaoValues[0].value === 7 || yaoValues[0].value === 6 ? 1 : 0) |
+                    ((yaoValues[1].value === 7 || yaoValues[1].value === 6 ? 1 : 0) << 1) |
+                    ((yaoValues[2].value === 7 || yaoValues[2].value === 6 ? 1 : 0) << 2)
+  const upperGua = baguaOrder[upperBits % 8]
+
+  // 下卦用三爻（四爻、五爻、六爻）
+  const lowerBits = (yaoValues[3].value === 7 || yaoValues[3].value === 6 ? 1 : 0) |
+                    ((yaoValues[4].value === 7 || yaoValues[4].value === 6 ? 1 : 0) << 1) |
+                    ((yaoValues[5].value === 7 || yaoValues[5].value === 6 ? 1 : 0) << 2)
+  const lowerGua = baguaOrder[lowerBits % 8]
+
+  // 动爻：找 value 为 6 或 9 的爻
+  const dongYaoIndex = yaoValues.findIndex(y => y.value === 6 || y.value === 9)
+  const dongYao = dongYaoIndex >= 0 ? dongYaoIndex + 1 : 1
+
+  return { upperGua, lowerGua, dongYao }
+}
+
 // 从年月日时起卦
 export function timeCast(year, month, day, hour) {
   // 甲子历计算
@@ -84,7 +114,7 @@ function getWuXingRelation(wuXing1, wuXing2) {
 }
 
 // 构建六爻完整信息
-export function buildHexagram(castResult, ganZhiDay) {
+export function buildHexagram(castResult, ganZhiDay, yaoValues) {
   const { upperGua, lowerGua, dongYao } = castResult
   const gong = baGuaGong[upperGua]
 
@@ -95,10 +125,12 @@ export function buildHexagram(castResult, ganZhiDay) {
   const yaoOrder = [6, 5, 4, 3, 2, 1] // 从上到下列
   const yaoInfo = yaoOrder.map((yaoPos, idx) => {
     const isDong = idx === (6 - dongYao)
+    const yaoType = yaoValues && yaoValues[idx] ? yaoValues[idx].type : (isDong ? '老阳' : '少阴')
     return {
       position: yaoPos,
       isDong,
-      change: isDong ? '阳' : null, // 动爻标记
+      type: yaoType,
+      change: isDong ? '阳' : null,
     }
   })
 
@@ -120,9 +152,9 @@ export function buildHexagram(castResult, ganZhiDay) {
 }
 
 // 解析卦象
-export function analyzeHexagram(castResult, ganZhiDay, question) {
+export function analyzeHexagram(castResult, ganZhiDay, question, yaoValues) {
   const { upperGua, lowerGua } = castResult
-  const info = buildHexagram(castResult, ganZhiDay)
+  const info = buildHexagram(castResult, ganZhiDay, yaoValues)
 
   // 确定用神
   const yongShen = determineYongShen(question)

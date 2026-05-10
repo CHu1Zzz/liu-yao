@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { coinToss, randomCast, timeCast, analyzeHexagram } from '../utils/divination'
+import { coinToss, randomCast, timeCast, analyzeHexagram, yaoValuesToHexagram } from '../utils/divination'
 
 export default function Divination() {
   const [step, setStep] = useState(1)
@@ -34,14 +34,11 @@ export default function Divination() {
       setTossCount(0)
       setCoinResults([])
     } else if (method === 'random') {
-      const result = randomCast()
+      const yaoValues = randomCast()
+      const hex = yaoValuesToHexagram(yaoValues)
       const ganZhiDay = getTodayGanZhi()
-      const upper = result[0].value >= 7 ? '乾' : '坤'
-      const lower = result[3].value >= 7 ? '乾' : '坤'
-      const dongYao = result.findIndex(r => r.change !== null) + 1 || 1
-      const castRes = { upperGua: upper, lowerGua: lower, dongYao }
-      setCastResult(castRes)
-      const a = analyzeHexagram(castRes, ganZhiDay, q)
+      setCastResult(hex)
+      const a = analyzeHexagram(hex, ganZhiDay, q, yaoValues)
       setAnalysis(a)
       setStep(4)
     } else if (method === 'time') {
@@ -67,24 +64,24 @@ export default function Divination() {
 
     if (tossCount + 1 >= 6) {
       const yaoValues = []
+      // 硬币：正面(花)=3，反面=2
+      // 3枚相加：6=老阳(阳动)，7=少阳(阳)，8=少阴(阴)，9=老阴(阴动)
+      const sumMap = { 0: 6, 1: 7, 2: 8, 3: 9 }
+      const typeMap = { 0: '老阴', 1: '少阳', 2: '少阴', 3: '老阳' }
+      const changeMap = { 0: '阳', 1: null, 2: null, 3: '阴' }
       for (let i = 0; i < 6; i++) {
-        const sum = [2, 2, 2, 2, 2, 2].map((_, idx) => {
-          const coin = newResults[i * 3 + idx]
-          return coin === 3 ? 3 : 2
-        }).reduce((a, b) => a + b, 0)
-        if (sum === 6) yaoValues.push({ value: 6, type: '老阳', change: '阴' })
-        else if (sum === 7) yaoValues.push({ value: 7, type: '少阳', change: null })
-        else if (sum === 8) yaoValues.push({ value: 8, type: '少阴', change: null })
-        else if (sum === 9) yaoValues.push({ value: 9, type: '老阴', change: '阳' })
+        const heads = newResults[i]
+        yaoValues.push({
+          value: sumMap[heads],
+          type: typeMap[heads],
+          change: changeMap[heads],
+        })
       }
-      const yangCount = newResults.filter(r => r === 3).length
-      const upper = yangCount >= 3 ? '乾' : '坤'
-      const lower = yangCount % 3 >= 2 ? '乾' : '坤'
-      const dongYao = (Math.floor(Math.random() * 6) + 1)
-      const castRes = { upperGua: upper, lowerGua: lower, dongYao }
-      setCastResult(castRes)
+      const hex = yaoValuesToHexagram(yaoValues)
       const ganZhiDay = getTodayGanZhi()
-      const a = analyzeHexagram(castRes, ganZhiDay, question)
+      const castRes = { upperGua: hex.upperGua, lowerGua: hex.lowerGua, dongYao: hex.dongYao }
+      setCastResult(castRes)
+      const a = analyzeHexagram(castRes, ganZhiDay, question, yaoValues)
       setAnalysis(a)
       setStep(4)
     }
@@ -291,6 +288,7 @@ export default function Divination() {
               <div className="yao-grid">
                 {['上', '五', '四', '三', '二', '初'].map((pos, idx) => {
                   const isDong = (6 - analysis.dongYao) === idx
+                  const yaoType = analysis.yaoInfo[idx]?.type || (isDong ? '老阳' : '少阴')
                   return (
                     <div key={pos} className={`yao-row ${isDong ? 'yao-row--active' : ''}`}>
                       <span style={{ width: 32, fontSize: 14, color: 'var(--color-ink-48)' }}>{pos}</span>
@@ -298,7 +296,7 @@ export default function Divination() {
                         {isDong ? '— ○' : '—'}
                       </span>
                       <span style={{ fontSize: 14, color: isDong ? 'var(--color-primary)' : 'var(--color-ink-48)' }}>
-                        {isDong ? '老阳（动）' : '少阴'}
+                        {yaoType}{isDong ? '（动）' : ''}
                       </span>
                     </div>
                   )
