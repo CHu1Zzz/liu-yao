@@ -1,85 +1,66 @@
 import { useState } from 'react'
+import { randomCast, analyzeHexagram } from '../utils/divination'
 
 const questions = [
   {
-    id: 1,
-    question: '朋友最近事业不顺，来占卜。你会选取哪个用神？',
-    options: ['官鬼爻', '父母爻', '子孙爻', '妻财爻'],
+    q: '占问事业发展的用神是？',
+    options: ['父母爻', '官鬼爻', '妻财爻', '子孙爻'],
     answer: 0,
-    explanation: '事业工作相关的事宜，以官鬼爻为用神。官鬼代表上司、官员、事业、担忧之事。',
-    category: '用神选取',
+    explanation: '事业相关应取父母爻，因为父母爻代表文书、合同、庇护、单位等与事业相关的客体。',
   },
   {
-    id: 2,
-    question: '占问父亲身体状况，应用哪个爻为用神？',
-    options: ['兄弟爻', '子孙爻', '父母爻', '官鬼爻'],
+    q: '占问财运时，哪个六亲代表钱财？',
+    options: ['父母爻', '兄弟爻', '妻财爻', '官鬼爻'],
     answer: 2,
-    explanation: '占问父母之事，以父母爻为用神。父亲为男性长辈，属父母辈。',
-    category: '用神选取',
+    explanation: '妻财爻代表钱财、妻子、情人、珠宝粮食等。占财运即以妻财爻为用神。',
   },
   {
-    id: 3,
-    question: '占问今日财运，应该看哪个爻？',
-    options: ['子孙爻生财', '妻财爻', '官鬼爻', '兄弟爻劫财'],
+    q: '六爻中"世爻"代表什么？',
+    options: ['他人', '自己', '长辈', '文书'],
     answer: 1,
-    explanation: '财运相关以妻财爻为用神。妻财代表钱财、可支配之物，是判断财运的核心。',
-    category: '用神选取',
+    explanation: '世爻代表求卦者本人，即"我"。应爻则代表他人或对方。',
   },
   {
-    id: 4,
-    question: '「世」爻在六爻中代表什么？',
-    options: ['他人', '自己', '事情结果', '时间'],
-    answer: 1,
-    explanation: '世爻代表自己，是卦象中"我"的位置。所有分析都围绕世爻与其他爻的关系展开。',
-    category: '世应关系',
-  },
-  {
-    id: 5,
-    question: '占卜时用神旺相，以下哪种情况最吉利？',
-    options: ['用神被月建克制', '用神得日建生助', '用神被动爻克伤', '用神临玄武'],
-    answer: 1,
-    explanation: '用神得日月生助为旺相，最吉利。日建月建代表天时，能生助用神则用神有力。',
-    category: '旺相休囚',
-  },
-  {
-    id: 6,
-    question: '动爻为「老阴」（9）时，会变为什么爻？',
-    options: ['少阳', '老阳', '少阴', '不变'],
+    q: '老阳（6）动则会变成？',
+    options: ['老阴', '少阳', '少阴', '不变'],
     answer: 2,
-    explanation: '老阴（6和9中的9）为老阴，动则变阳，变为少阴爻。动变是六爻预测变化的核心。',
-    category: '动变规则',
+    explanation: '老阳（6）为动爻，动则变为少阴。老阴（9）动则变为少阳。这是阴阳互变的基本规则。',
   },
   {
-    id: 7,
-    question: '青龙临官鬼爻，通常预示什么？',
-    options: ['大凶之事', '吉凶参半', '有贵人相助的事业运', '破财'],
+    q: '五行中木克什么？',
+    options: ['火', '土', '金', '水'],
+    answer: 1,
+    explanation: '木克土。五行相克：木克土、土克水、水克火、火克金、金克木。',
+  },
+  {
+    q: '占问子女事情时，用神是？',
+    options: ['子孙爻', '妻财爻', '父母爻', '官鬼爻'],
+    answer: 0,
+    explanation: '子孙爻代表子女、晚辈、六畜、药物、欢乐等。占问子女事即以子孙爻为用神。',
+  },
+  {
+    q: '青龙临官鬼爻通常表示？',
+    options: ['大吉', '口舌是非', '伤病凶灾', '财运亨通'],
     answer: 2,
-    explanation: '青龙为吉神，官鬼代表事业官运。青龙临官鬼，主事业上有贵人扶持、晋升之象。',
-    category: '六神判断',
+    explanation: '青龙为吉神，但临官鬼爻时反不吉。官鬼爻代表疾病、鬼祟、压力，青龙临之仍有其吉意，但合并官鬼则主伤病。',
   },
   {
-    id: 8,
-    question: '兄弟爻动而克妻财爻，代表什么？',
-    options: ['有财运', '破财损财', '事业顺利', '身体好'],
-    answer: 1,
-    explanation: '兄弟为劫财之神，兄弟爻动则克妻财。妻财代表钱财，故兄弟动主破财损财之象。',
-    category: '六亲生克',
+    q: '占问文书合同相关事宜，用神是？',
+    options: ['子孙爻', '官鬼爻', '父母爻', '妻财爻'],
+    answer: 2,
+    explanation: '父母爻代表父母、长辈、房屋、车辆、文书合同等庇护之物。',
   },
   {
-    id: 9,
-    question: '原神的作用是什么？',
-    options: ['克制用神', '生助用神', '与用神同类', '代表他人'],
+    q: '朱雀在六神中主要代表？',
+    options: ['盗贼', '口舌是非', '伤病', '喜庆'],
     answer: 1,
-    explanation: '原神是生助用神之爻。用神如得我之原神生助，则更加旺相有力，大吉之象。',
-    category: '原神忌神',
+    explanation: '朱雀为凶神，代表口舌、官非、火灾、书信文书等口舌是非之事。',
   },
   {
-    id: 10,
-    question: '占问子女生育情况，应以什么爻为用神？',
-    options: ['官鬼爻', '子孙爻', '父母爻', '兄弟爻'],
-    answer: 1,
-    explanation: '子孙爻代表子女、晚辈、福神。占问子女生育、子女健康等，皆以子孙爻为用神。',
-    category: '用神选取',
+    q: '卦中用神旺相且得原神生助，通常表示？',
+    options: ['大凶', '小吉', '大吉', '无影响'],
+    answer: 2,
+    explanation: '用神旺相又得原神生助，是最好的卦象组合，主大吉。若忌神也旺，则吉中带凶。',
   },
 ]
 
@@ -89,26 +70,27 @@ export default function Practice() {
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
-  const [history, setHistory] = useState([])
-
-  const q = questions[current]
+  const [streak, setStreak] = useState(0)
 
   const handleSelect = (idx) => {
     if (answered) return
     setSelected(idx)
     setAnswered(true)
-    const correct = idx === q.answer
-    if (correct) setScore(s => s + 1)
-    setHistory(h => [...h, { q: q.id, correct, selected: idx, answer: q.answer }])
+    if (idx === questions[current].answer) {
+      setScore(score + 1)
+      setStreak(streak + 1)
+    } else {
+      setStreak(0)
+    }
   }
 
   const next = () => {
-    if (current < questions.length - 1) {
-      setCurrent(c => c + 1)
+    if (current + 1 >= questions.length) {
+      setDone(true)
+    } else {
+      setCurrent(current + 1)
       setSelected(null)
       setAnswered(false)
-    } else {
-      setDone(true)
     }
   }
 
@@ -118,104 +100,115 @@ export default function Practice() {
     setAnswered(false)
     setScore(0)
     setDone(false)
-    setHistory([])
-  }
-
-  if (done) {
-    const pct = Math.round((score / questions.length) * 100)
-    return (
-      <div>
-        <section className="section-light text-center">
-          <div className="max-w-[500px] mx-auto">
-            <div className="text-[80px] mb-4">{pct >= 80 ? '✦' : pct >= 60 ? '◈' : '◇'}</div>
-            <h1 className="text-[36px] font-semibold mb-2">练习完成</h1>
-            <p className="text-[48px] font-semibold text-primary mb-2">{score}/{questions.length}</p>
-            <p className="text-[17px] text-[#86868b] mb-8">
-              {pct >= 80 ? '优秀！六爻基础扎实' : pct >= 60 ? '良好，继续努力' : '建议复习基础知识'}
-            </p>
-            <button onClick={restart} className="btn-primary">再练一次</button>
-          </div>
-        </section>
-      </div>
-    )
+    setStreak(0)
   }
 
   return (
     <div>
       {/* Header */}
-      <section className="section-parchment text-center py-12">
-        <h1 className="text-[40px] font-semibold tracking-tight mb-3">练习中心</h1>
-        <p className="text-[17px] text-[#86868b]">检验你的六爻知识掌握程度</p>
-      </section>
-
-      {/* Progress */}
-      <section className="section-light py-4 border-b border-[#e0e0e0]">
-        <div className="max-w-[700px] mx-auto">
-          <div className="flex items-center justify-between text-[14px] text-[#86868b] mb-2">
-            <span>第 {current + 1} / {questions.length} 题</span>
-            <span>得分: {score}</span>
-          </div>
-          <div className="h-[4px] bg-[#e0e0e0] rounded-full">
-            <div
-              className="h-full bg-primary rounded-full transition-all"
-              style={{ width: `${((current) / questions.length) * 100}%` }}
-            />
-          </div>
+      <section className="page-section page-section--light" style={{ padding: '60px 24px 40px' }}>
+        <div className="container--narrow" style={{ textAlign: 'center' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 600, letterSpacing: '-0.028em', marginBottom: 8 }}>互动练习</h1>
+          <p className="text代-muted">检验六爻知识掌握程度</p>
         </div>
       </section>
 
-      {/* Question */}
-      <section className="section-light">
-        <div className="max-w-[600px] mx-auto">
-          <div className="card mb-6">
-            <span className="text-[12px] text-primary bg-[#0066cc0d] px-2 py-1 rounded-full">
-              {q.category}
-            </span>
-            <h2 className="text-[19px] font-semibold mt-3 leading-snug">{q.question}</h2>
-          </div>
-
-          {/* Options */}
-          <div className="space-y-3">
-            {q.options.map((opt, idx) => {
-              let cls = 'card hover:border-[#86868b]'
-              if (answered) {
-                if (idx === q.answer) cls += ' border-primary bg-[#0066cc0d]'
-                else if (idx === selected) cls += ' border-red-500 bg-red-50'
-              } else {
-                cls += selected === idx ? ' border-primary' : ''
-              }
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleSelect(idx)}
-                  className={`w-full text-left transition-colors ${cls}`}
-                  disabled={answered}
-                >
-                  <span className="text-[17px]">{opt}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Explanation */}
-          {answered && (
-            <div className="mt-6 p-5 bg-[#f5f5f7] rounded-[18px]">
-              <p className={`text-[16px] font-semibold mb-2 ${selected === q.answer ? 'text-green-600' : 'text-red-500'}`}>
-                {selected === q.answer ? '✓ 回答正确' : '✗ 回答错误'}
-              </p>
-              <p className="text-[14px] text-[#444]">{q.explanation}</p>
+      {/* Quiz */}
+      {!done ? (
+        <section className="page-section page-section--white">
+          <div className="container--narrow">
+            {/* Progress */}
+            <div style={{ marginBottom: 40 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ fontSize: 14, color: 'var(--color-ink-48)' }}>第 {current + 1} / {questions.length} 题</span>
+                {streak >= 2 && (
+                  <span style={{ fontSize: 12, color: 'var(--color-primary)', background: 'rgba(0,113,227,0.08)', padding: '2px 10px', borderRadius: 'var(--radius-pill)', fontWeight: 500 }}>
+                    连续 {streak} 正确
+                  </span>
+                )}
+              </div>
+              <div className="quiz-progress">
+                <div className="quiz-progress__bar" style={{ width: `${((current) / questions.length) * 100}%` }} />
+              </div>
             </div>
-          )}
 
-          {/* Next */}
-          {answered && (
-            <button onClick={next} className="w-full btn-primary mt-6">
-              {current < questions.length - 1 ? '下一题 →' : '查看结果'}
-            </button>
-          )}
-        </div>
-      </section>
+            {/* Question */}
+            <div className="card" style={{ marginBottom: 20 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, lineHeight: 1.3, marginBottom: 0 }}>
+                {questions[current].q}
+              </h2>
+            </div>
+
+            {/* Options */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+              {questions[current].options.map((opt, idx) => {
+                let cls = 'quiz-option'
+                if (answered) {
+                  if (idx === questions[current].answer) cls += ' quiz-option--correct'
+                  else if (idx === selected) cls += ' quiz-option--wrong'
+                }
+                return (
+                  <button key={idx} onClick={() => handleSelect(idx)} className={cls} disabled={answered}>
+                    <span style={{
+                      width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 14, fontWeight: 500,
+                      background: answered && idx === questions[current].answer ? '#34c759' :
+                        answered && idx === selected ? '#ff3b30' : 'var(--color-parchment)',
+                      color: answered ? 'var(--color-white)' : 'var(--color-ink-muted)',
+                      flexShrink: 0
+                    }}>
+                      {answered && idx === questions[current].answer ? '✓' : answered && idx === selected ? '✗' : String.fromCharCode(65 + idx)}
+                    </span>
+                    <span style={{ fontSize: 16 }}>{opt}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Explanation */}
+            {answered && (
+              <div className="card" style={{ background: 'var(--color-parchment)', marginBottom: 20 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: selected === questions[current].answer ? '#34c759' : '#ff3b30' }}>
+                    {selected === questions[current].answer ? '✓ 正确' : '✗ 错误'}
+                  </span>
+                </h3>
+                <p style={{ fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.6 }}>{questions[current].explanation}</p>
+              </div>
+            )}
+
+            {/* Next */}
+            {answered && (
+              <button onClick={next} className="btn-primary" style={{ width: '100%' }}>
+                {current + 1 >= questions.length ? '查看结果' : '下一题'}
+              </button>
+            )}
+          </div>
+        </section>
+      ) : (
+        /* Results */
+        <section className="page-section page-section--light">
+          <div className="container--narrow" style={{ textAlign: 'center' }}>
+            <div className="card" style={{ marginBottom: 24 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, marginBottom: 16 }}>练习完成</h2>
+              <div style={{ fontSize: 80, fontWeight: 200, lineHeight: 1, marginBottom: 8, fontFamily: 'var(--font-display)' }}>
+                {score}/{questions.length}
+              </div>
+              <p style={{ fontSize: 17, color: 'var(--color-ink-muted)' }}>
+                {score === questions.length ? '完美！六爻基础扎实' :
+                  score >= 7 ? '不错！继续深入学习' :
+                    score >= 5 ? '及格，建议回顾基础知识' : '需要加强学习'}
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button onClick={restart} className="btn-primary" style={{ width: '100%' }}>重新开始</button>
+              <a href="/learn" className="btn-secondary" style={{ width: '100%', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                去学习
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }

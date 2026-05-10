@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import { liuQinRules } from '../data/liuQin'
-import { liuShenRules } from '../data/liuShen'
-import { tianGan, diZhi, wuXing, diZhiWuXing, baGua } from '../data/baGua'
 
 const topics = [
   {
@@ -16,7 +13,7 @@ const topics = [
     ],
   },
   {
-    id: 'liUQin',
+    id: 'liuQin',
     title: '六亲',
     icon: '六',
     items: [
@@ -25,7 +22,7 @@ const topics = [
       { q: '父母爻代表什么？', a: '父母爻代表父母、长辈、房屋、衣服、车辆、文书合同等庇护之物。占父母、占文书、占房屋时以父母爻为用神。' },
       { q: '官鬼爻代表什么？', a: '官鬼爻代表官员、上司、丈夫、疾病、鬼祟等。占官运、占疾病、占担忧之事时以官鬼爻为用神。' },
       { q: '妻财爻代表什么？', a: '妻财爻代表妻子、情人、钱财、珠宝、粮食等。占财运、占妻子、占食物时以妻财爻为用神。' },
-      { q: '子孙爻代表什么？', a: '子孙爻代表子女、晚辈、六畜、药物、欢乐等。占子女、占医药、占福神时以子孙爻为用神。占出行则子孙爻为忌神（子孙克官鬼，官鬼为旅途阻碍）。' },
+      { q: '子孙爻代表什么？', a: '子孙爻代表子女、晚辈、六畜、药物、欢乐等。占子女、占医药、占福神时以子孙爻为用神。' },
       { q: '兄弟爻代表什么？', a: '兄弟爻代表兄弟姐妹、朋友、同辈、竞争对手等。兄弟爻动则劫财，占破财时兄弟为忌神。' },
     ],
   },
@@ -79,7 +76,7 @@ const topics = [
 ]
 
 export default function Learn() {
-  const [depth, setDepth] = useState('shallow') // 'shallow' | 'deep'
+  const [depth, setDepth] = useState('shallow')
   const [activeTopic, setActiveTopic] = useState('basics')
   const [openItems, setOpenItems] = useState({})
 
@@ -91,42 +88,55 @@ export default function Learn() {
   return (
     <div>
       {/* Header */}
-      <section className="section-parchment text-center py-12">
-        <h1 className="text-[40px] font-semibold tracking-tight mb-3">学习中心</h1>
-        <p className="text-[17px] text-[#86868b]">六爻占卜基础知识与进阶</p>
+      <section className="page-section page-section--light" style={{ padding: '60px 24px 40px' }}>
+        <div className="container--narrow" style={{ textAlign: 'center' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 600, letterSpacing: '-0.028em', marginBottom: 8 }}>学习中心</h1>
+          <p className="text代-muted">六爻占卜基础知识与进阶</p>
+        </div>
       </section>
 
       {/* Depth Toggle */}
-      <section className="section-light py-6 border-b border-[#e0e0e0]">
-        <div className="max-w-[980px] mx-auto flex items-center justify-center gap-4">
-          <span className={`text-[15px] ${depth === 'shallow' ? 'text-primary font-semibold' : 'text-[#86868b]'}`}>浅学</span>
+      <section style={{ background: 'var(--color-white)', padding: '20px 24px', borderBottom: '1px solid var(--color-hairline)' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+          <span style={{ fontSize: 14, fontWeight: 500, color: depth === 'shallow' ? 'var(--color-ink)' : 'var(--color-ink-48)' }}>浅学</span>
           <button
             onClick={() => setDepth(depth === 'shallow' ? 'deep' : 'shallow')}
-            className="w-[52px] h-[30px] rounded-full bg-[#e0e0e0] relative transition-colors"
+            style={{
+              width: 52, height: 30, borderRadius: 16, background: 'var(--color-parchment)',
+              border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s'
+            }}
           >
-            <div className={`absolute top-[3px] w-[24px] h-[24px] rounded-full bg-white shadow transition-transform ${depth === 'deep' ? 'translate-x-[25px]' : 'translate-x-[3px]'}`} />
+            <div style={{
+              position: 'absolute', top: 3, width: 24, height: 24, borderRadius: '50%',
+              background: 'var(--color-white)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+              transition: 'transform 0.2s',
+              transform: depth === 'deep' ? 'translateX(25px)' : 'translateX(3px)'
+            }} />
           </button>
-          <span className={`text-[15px] ${depth === 'deep' ? 'text-primary font-semibold' : 'text-[#86868b]'}`}>深学</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: depth === 'deep' ? 'var(--color-ink)' : 'var(--color-ink-48)' }}>深学</span>
           {depth === 'deep' && (
-            <span className="text-[13px] text-[#86868b] bg-[#f5f5f7] px-2 py-1 rounded-full">
+            <span style={{ fontSize: 12, color: 'var(--color-ink-48)', background: 'var(--color-parchment)', padding: '4px 12px', borderRadius: 'var(--radius-pill)' }}>
               含进阶概念与实战案例
             </span>
           )}
         </div>
       </section>
 
-      {/* Topic Tabs */}
-      <section className="section-light">
-        <div className="max-w-[980px] mx-auto">
-          {/* 快速导航 */}
-          <div className="flex flex-wrap gap-2 mb-8">
+      {/* Content */}
+      <section className="page-section page-section--white">
+        <div className="container">
+          {/* Topic Tabs */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 40 }}>
             {topics.map(t => (
               <button
                 key={t.id}
                 onClick={() => setActiveTopic(t.id)}
-                className={`px-4 py-2 rounded-full text-[14px] transition-colors ${
-                  activeTopic === t.id ? 'bg-primary text-white' : 'bg-[#f5f5f7] text-[#86868b] hover:bg-[#e0e0e0]'
-                }`}
+                style={{
+                  padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontSize: 14,
+                  fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', border: 'none',
+                  background: activeTopic === t.id ? 'var(--color-primary)' : 'var(--color-parchment)',
+                  color: activeTopic === t.id ? 'var(--color-white)' : 'var(--color-ink-muted)',
+                }}
               >
                 {t.icon} {t.title}
               </button>
@@ -136,25 +146,32 @@ export default function Learn() {
           {/* Topic Content */}
           {topics.filter(t => t.id === activeTopic).map(topic => (
             <div key={topic.id}>
-              <h2 className="text-[28px] font-semibold mb-6">{topic.icon} {topic.title}</h2>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, marginBottom: 24 }}>{topic.title}</h2>
 
-              {/* 基础内容 */}
-              <div className="space-y-3 mb-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
                 {topic.items.map((item, idx) => {
                   const key = `${topic.id}-${item.q}`
                   const isOpen = openItems[key]
                   return (
-                    <div key={idx} className="card">
+                    <div key={idx} className="card" style={{ padding: 0, overflow: 'hidden' }}>
                       <button
                         onClick={() => toggleItem(topic.id, item.q)}
-                        className="w-full flex items-center justify-between text-left"
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '18px 24px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                          fontSize: 16, fontWeight: 500, color: 'var(--color-ink)',
+                        }}
                       >
-                        <span className="text-[16px] font-medium pr-4">{item.q}</span>
-                        <span className={`text-[#86868b] transition-transform ${isOpen ? 'rotate-45' : ''}`}>+</span>
+                        <span style={{ flex: 1, paddingRight: 16 }}>{item.q}</span>
+                        <span style={{
+                          fontSize: 22, color: 'var(--color-ink-48)', transition: 'transform 0.2s',
+                          transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
+                          fontWeight: 300
+                        }}>+</span>
                       </button>
                       {isOpen && (
-                        <div className="mt-4 pt-4 border-t border-[#e0e0e0]">
-                          <p className="text-[15px] text-[#333] leading-relaxed">{item.a}</p>
+                        <div style={{ padding: '0 24px 20px', borderTop: '1px solid var(--color-hairline)', marginTop: 0 }}>
+                          <p style={{ fontSize: 15, color: 'var(--color-ink)', lineHeight: 1.7, paddingTop: 16 }}>{item.a}</p>
                         </div>
                       )}
                     </div>
@@ -162,44 +179,44 @@ export default function Learn() {
                 })}
               </div>
 
-              {/* 深度内容 */}
+              {/* Deep Content */}
               {depth === 'deep' && (
-                <div className="mt-8 p-6 bg-[#f5f5f7] rounded-[18px]">
-                  <h3 className="text-[19px] font-semibold mb-4 flex items-center gap-2">
-                    <span className="text-primary">◈</span> 进阶理解
+                <div className="card" style={{ background: 'var(--color-parchment)', marginTop: 8 }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: 'var(--color-primary)' }}>◈</span> 进阶理解
                   </h3>
                   {topic.id === 'basics' && (
-                    <div className="space-y-3 text-[14px] text-[#444]">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.7 }}>
                       <p>六爻体系中，"爻"是最基本的单元。每个爻有阴阳之分，动爻（老阳老阴）代表变化的关键点。六爻组成一卦，六爻卦共有64种，每卦有六个爻位，从初爻到上爻。</p>
                       <p>五行生克是判断吉凶的核心框架。生助用神者为原神，吉；克制用神者为忌神，凶；生助忌神者为仇神，不利。掌握五行生克是六爻预测的基本功。</p>
                     </div>
                   )}
-                  {topic.id === 'liUQin' && (
-                    <div className="space-y-3 text-[14px] text-[#444]">
+                  {topic.id === 'liuQin' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.7 }}>
                       <p>六亲的实质是以卦宫五行为"我"建立的一套生克关系网。以乾宫卦为例，乾宫属金，金之父母为土，金之官鬼为火，金之子孙为木，金之妻财为水，金之兄弟为金。</p>
                       <p>实际预测中，用神旺衰是核心。用神旺相又得原神生助，大吉；用神休囚又逢忌神克制，大凶。用神不现时可查伏神，或以动变之爻作为参考。</p>
                     </div>
                   )}
                   {topic.id === 'liuShen' && (
-                    <div className="space-y-3 text-[14px] text-[#444]">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.7 }}>
                       <p>六神在六爻中作为辅助判断工具，并非决定性因素。青龙吉而朱雀凶，但若卦象中用神旺相，即使朱雀临之，亦主口舌但终吉。六神配合爻位、动变综合判断方为全面。</p>
                       <p>六神临世爻或用神时，其吉凶含义最为明显。如青龙临用神，主喜庆吉利之事；白虎临官鬼爻且动，主伤病凶灾。</p>
                     </div>
                   )}
                   {topic.id === 'shiYing' && (
-                    <div className="space-y-3 text-[14px] text-[#444]">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.7 }}>
                       <p>世应之间的关系反映占问事项中"我"与"对方"的力量对比。世爻旺而应爻衰，主我有力量掌控局面；世爻衰而应爻旺，主对方占优势。</p>
                       <p>世应相生相克的关系也很重要：世生应或应生世，主双方有互动往来；世克应或应克世，主双方存在冲突或对抗。</p>
                     </div>
                   )}
                   {topic.id === 'dongbian' && (
-                    <div className="space-y-3 text-[14px] text-[#444]">
-                      <p>动爻是六爻变化的核心枢纽。动爻可以生克冲合静爻，而静爻不能直接生克动爻。动爻与日建、月建的关系尤为重要：日月能生克冲合任意爻爻。</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.7 }}>
+                      <p>动爻是六爻变化的核心枢纽。动爻可以生克冲合静爻，而静爻不能直接生克动爻。动爻与日建、月建的关系尤为重要：日月能生克冲合任意一爻。</p>
                       <p>动变规则：老阳（6）动变少阴，老阴（9）动变少阳。动变后的卦象（变卦）反映事物发展的最终结果。分析时需结合本卦与变卦综合判断。</p>
                     </div>
                   )}
                   {topic.id === 'yongshen' && (
-                    <div className="space-y-3 text-[14px] text-[#444]">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.7 }}>
                       <p>用神选取是六爻预测的第一步，也是最关键的一步。用神选错，全卦皆错。选取用神需仔细分析所问之事的性质，有时一件事可涉及多个用神。</p>
                       <p>用神两现时，取动爻或旺相之爻为用；用神不现时，查本宫伏神或以日干地支辅助判断。特殊情况如占梦、占怪事则以官鬼爻为用神。</p>
                     </div>
